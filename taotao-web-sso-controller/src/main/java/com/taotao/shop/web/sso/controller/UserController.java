@@ -1,9 +1,9 @@
 package com.taotao.shop.web.sso.controller;
 
-import com.taotao.shop.sso.domain.pojo.TbUser;
-import com.taotao.shop.sso.domain.result.TaotaoResult;
-import com.taotao.shop.sso.export.UserResource;
 import com.taotao.shop.web.sso.common.utils.CookieUtils;
+import com.taotao.springboot.sso.domain.pojo.TbUser;
+import com.taotao.springboot.sso.domain.result.TaotaoResult;
+import com.taotao.springboot.sso.export.UserResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

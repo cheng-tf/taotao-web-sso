@@ -17,10 +17,16 @@
             <artifactId>taotao-web-sso-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <!-- taotao-sso -->
         <dependency>
-            <groupId>com.taotao.shop</groupId>
+            <groupId>com.taotao.springboot</groupId>
+            <artifactId>taotao-sso-domain</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.taotao.springboot</groupId>
             <artifactId>taotao-sso-export</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <!-- Spring -->
         <dependency>
