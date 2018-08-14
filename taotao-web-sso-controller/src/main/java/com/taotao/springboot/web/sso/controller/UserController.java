@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * <p>Title: UserController</p>
@@ -41,6 +41,9 @@ public class UserController {
     @Value("${TOKEN_KEY}")
     private String TOKEN_KEY;
 
+    /**
+     * 判断用户提交的数据是否合法、或可用
+     */
     @RequestMapping("/check/{param}/{type}")
     @ResponseBody
     public TaotaoResult checkData(
@@ -48,6 +51,9 @@ public class UserController {
         return userResource.checkData(param, type);
     }
 
+    /**
+     * 用户注册
+     */
     @RequestMapping(value="/register", method=RequestMethod.POST)
     @ResponseBody
     public TaotaoResult register(TbUser user) {
@@ -57,6 +63,9 @@ public class UserController {
         return result;
     }
 
+    /**
+     * 用户登录
+     */
     @RequestMapping(value="/login", method= RequestMethod.POST)
     @ResponseBody
     public TaotaoResult login(String username, String password,
@@ -71,21 +80,10 @@ public class UserController {
         return result;
     }
 
-/*	@RequestMapping(value="/token/{token}",
-			method=RequestMethod.GET,
-			produces=MediaType.APPLICATION_JSON_UTF8_VALUE	// 指定响应数据的content-type
-			)
-	@ResponseBody
-	public String getUserByToken(@PathVariable String token, String callback) {
-		TaotaoResult result = userService.getUserByToken(token);
-		// 判断是否为jsonp请求
-		if (StringUtils.isNotBlank(callback)) {
-			return callback + "(" + JsonUtils.objectToJson(result) + ");";
-		}
-		return JsonUtils.objectToJson(result);
-	}	*/
-
-    // jsonp方法二：Spring4.1以上版本使用
+    /**
+     * 判断用户是否已登录
+     * jsonp跨域请求
+     */
     @RequestMapping(value="/token/{token}", method=RequestMethod.GET)
     @ResponseBody
     public Object getUserByToken(@PathVariable String token, String callback) {
@@ -101,16 +99,21 @@ public class UserController {
         return result;
     }
 
-    @RequestMapping(value="/logout/{token}",
-            method=RequestMethod.GET,
-            produces= MediaType.APPLICATION_JSON_UTF8_VALUE	// 指定响应数据的content-type
-    )
-    @ResponseBody
-    public TaotaoResult logout(@PathVariable String token, String callback) {
+    /**
+     * 用户退出
+     */
+    @RequestMapping(value="/logout", method=RequestMethod.GET)
+    public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // #1 获取存储于Cookie中的TOKEN令牌
+        String token = CookieUtils.getCookieValue(request, TOKEN_KEY);
+        // #2 删除Cookie
+        CookieUtils.deleteCookie(request, response, TOKEN_KEY);
+        // #3 退出
         log.info("用户退出, token={}", token);
         TaotaoResult result = userResource.logout(token);
         log.info("用户退出, res={}", JacksonUtils.objectToJson(result));
-        return result;
+        response.sendRedirect("http://localhost:8086");
+        //return "redirect:http://localhost:8086";
     }
 
 }
