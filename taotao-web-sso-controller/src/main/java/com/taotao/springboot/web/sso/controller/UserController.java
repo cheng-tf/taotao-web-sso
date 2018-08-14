@@ -1,10 +1,13 @@
-package com.taotao.shop.web.sso.controller;
+package com.taotao.springboot.web.sso.controller;
 
-import com.taotao.shop.web.sso.common.utils.CookieUtils;
 import com.taotao.springboot.sso.domain.pojo.TbUser;
 import com.taotao.springboot.sso.domain.result.TaotaoResult;
 import com.taotao.springboot.sso.export.UserResource;
+import com.taotao.springboot.web.sso.common.utils.CookieUtils;
+import com.taotao.springboot.web.sso.common.utils.JacksonUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -30,12 +33,13 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/user")
 public class UserController {
 
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+
     @Autowired
     private UserResource userResource;
 
     @Value("${TOKEN_KEY}")
     private String TOKEN_KEY;
-
 
     @RequestMapping("/check/{param}/{type}")
     @ResponseBody
@@ -44,26 +48,28 @@ public class UserController {
         return userResource.checkData(param, type);
     }
 
-
     @RequestMapping(value="/register", method=RequestMethod.POST)
     @ResponseBody
     public TaotaoResult register(TbUser user) {
-        return userResource.register(user);
+        log.info("用户注册, user={}", JacksonUtils.objectToJson(user));
+        TaotaoResult result = userResource.register(user);
+        log.info("用户注册, res={}", JacksonUtils.objectToJson(result));
+        return result;
     }
-
 
     @RequestMapping(value="/login", method= RequestMethod.POST)
     @ResponseBody
     public TaotaoResult login(String username, String password,
                               HttpServletResponse response, HttpServletRequest request) {
+        log.info("用户登录, username={}", username);
         TaotaoResult result = userResource.login(username, password);
+        log.info("用户登录, res={}", JacksonUtils.objectToJson(result));
         // 登录成功后，写入cookie
         if (result.getStatus() == 200) {
             CookieUtils.setCookie(request, response, TOKEN_KEY, result.getData().toString());
         }
         return result;
     }
-
 
 /*	@RequestMapping(value="/token/{token}",
 			method=RequestMethod.GET,
@@ -83,7 +89,9 @@ public class UserController {
     @RequestMapping(value="/token/{token}", method=RequestMethod.GET)
     @ResponseBody
     public Object getUserByToken(@PathVariable String token, String callback) {
+        log.info("根据Token获取用户信息, token={}", token);
         TaotaoResult result = userResource.getUserByToken(token);
+        log.info("根据Token获取用户信息, res={}", JacksonUtils.objectToJson(result));
         if (StringUtils.isNotBlank(callback)) {		// 判断是否为jsonp请求
             MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(result);
             // 设置回调方法
@@ -93,16 +101,16 @@ public class UserController {
         return result;
     }
 
-
     @RequestMapping(value="/logout/{token}",
             method=RequestMethod.GET,
             produces= MediaType.APPLICATION_JSON_UTF8_VALUE	// 指定响应数据的content-type
     )
     @ResponseBody
     public TaotaoResult logout(@PathVariable String token, String callback) {
+        log.info("用户退出, token={}", token);
         TaotaoResult result = userResource.logout(token);
+        log.info("用户退出, res={}", JacksonUtils.objectToJson(result));
         return result;
     }
-
 
 }

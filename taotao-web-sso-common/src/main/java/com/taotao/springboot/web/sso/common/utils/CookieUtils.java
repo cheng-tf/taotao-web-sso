@@ -1,4 +1,4 @@
-package com.taotao.shop.web.sso.common.utils;
+package com.taotao.springboot.web.sso.common.utils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
