@@ -70,10 +70,11 @@ public class UserController {
     @ResponseBody
     public TaotaoResult login(String username, String password,
                               HttpServletResponse response, HttpServletRequest request) {
+        // #1 登录
         log.info("用户登录, username={}", username);
         TaotaoResult result = userResource.login(username, password);
         log.info("用户登录, res={}", JacksonUtils.objectToJson(result));
-        // 登录成功后，写入cookie
+        // #2 登录成功后，将TOKEN令牌写入Cookie
         if (result.getStatus() == 200) {
             CookieUtils.setCookie(request, response, TOKEN_KEY, result.getData().toString());
         }
